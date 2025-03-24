@@ -11,6 +11,7 @@
 #include "threads/synch.h"
 #include "threads/vaddr.h"
 #include "intrinsic.h"
+#include "devices/timer.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -27,6 +28,7 @@
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
+struct list sleep_list;
 
 /* Idle thread. */
 static struct thread *idle_thread;
@@ -79,6 +81,17 @@ static tid_t allocate_tid (void);
 // setup temporal gdt first.
 static uint64_t gdt[3] = { 0, 0x00af9a000000ffff, 0x00cf92000000ffff };
 
+// priority compare function
+static bool
+cmp_priority (const struct list_elem *a,
+                  const struct list_elem *b,
+                  void *aux UNUSED) {
+  struct thread *t_a = list_entry (a, struct thread, elem);
+  struct thread *t_b = list_entry (b, struct thread, elem);
+  return t_a->priority > t_b->priority;
+}
+
+
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
    general and it is possible in this case only because loader.S
@@ -108,13 +121,42 @@ thread_init (void) {
 	/* Init the globla thread context */
 	lock_init (&tid_lock);
 	list_init (&ready_list);
+	list_init (&sleep_list);
 	list_init (&destruction_req);
+
 
 	/* Set up a thread structure for the running thread. */
 	initial_thread = running_thread ();
 	init_thread (initial_thread, "main", PRI_DEFAULT);
 	initial_thread->status = THREAD_RUNNING;
 	initial_thread->tid = allocate_tid ();
+}
+
+static bool
+wakeup_tick_less (const struct list_elem *a,
+                  const struct list_elem *b,
+                  void *aux UNUSED) {
+  struct thread *t_a = list_entry (a, struct thread, elem);
+  struct thread *t_b = list_entry (b, struct thread, elem);
+  return t_a->wakeup_tick < t_b->wakeup_tick;
+}
+
+
+void
+thread_sleep (int64_t ticks) {
+  if (thread_current () == idle_thread)
+    return;
+
+  enum intr_level old_level = intr_disable ();
+
+  struct thread *cur = thread_current ();
+  cur->wakeup_tick = timer_ticks () + ticks;
+  
+  list_insert_ordered (&sleep_list, &cur->elem, wakeup_tick_less, NULL);
+  
+  thread_block ();
+
+  intr_set_level (old_level);
 }
 
 /* Starts preemptive thread scheduling by enabling interrupts.
@@ -207,6 +249,10 @@ thread_create (const char *name, int priority,
 	/* Add to run queue. */
 	thread_unblock (t);
 
+	if (t->priority > thread_current()->priority) {
+		thread_yield();
+	}
+
 	return tid;
 }
 
@@ -240,7 +286,7 @@ thread_unblock (struct thread *t) {
 
 	old_level = intr_disable ();
 	ASSERT (t->status == THREAD_BLOCKED);
-	list_push_back (&ready_list, &t->elem);
+	list_insert_ordered(&ready_list, &t->elem, cmp_priority, NULL);
 	t->status = THREAD_READY;
 	intr_set_level (old_level);
 }
@@ -303,7 +349,7 @@ thread_yield (void) {
 
 	old_level = intr_disable ();
 	if (curr != idle_thread)
-		list_push_back (&ready_list, &curr->elem);
+		list_insert_ordered(&ready_list, &curr->elem, cmp_priority, NULL);
 	do_schedule (THREAD_READY);
 	intr_set_level (old_level);
 }
@@ -312,6 +358,18 @@ thread_yield (void) {
 void
 thread_set_priority (int new_priority) {
 	thread_current ()->priority = new_priority;
+	/*
+	struct thread *curr = thread_current();
+    curr->priority = new_priority;
+
+    // If the current thread is waiting (i.e. not running), remove it from the ready_list
+    // and reinsert it so that the ready_list remains sorted by priority.
+    if (curr->status == THREAD_READY) {
+        list_remove(&curr->elem);
+        list_insert_ordered(&ready_list, &curr->elem, cmp_priority, NULL);
+    }
+	*/
+	thread_yield();
 }
 
 /* Returns the current thread's priority. */
