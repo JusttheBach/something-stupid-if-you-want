@@ -18,6 +18,10 @@
 static thread_func acquire1_thread_func;
 static thread_func acquire2_thread_func;
 
+const char* thread_get_name(void) {
+  return thread_current()->name;
+}
+
 void
 test_priority_donate_one (void) 
 {
@@ -40,13 +44,14 @@ test_priority_donate_one (void)
   lock_release (&lock);
   msg ("acquire2, acquire1 must already have finished, in that order.");
   msg ("This should be the last line before finishing this test.");
+  // printf("main priority: %d\n", thread_get_priority());
 }
 
 static void
 acquire1_thread_func (void *lock_) 
 {
+  // printf("acquire1 started. ");
   struct lock *lock = lock_;
-
   lock_acquire (lock);
   msg ("acquire1: got the lock");
   lock_release (lock);
@@ -56,8 +61,8 @@ acquire1_thread_func (void *lock_)
 static void
 acquire2_thread_func (void *lock_) 
 {
+  // printf("acquire2 started. ");
   struct lock *lock = lock_;
-
   lock_acquire (lock);
   msg ("acquire2: got the lock");
   lock_release (lock);

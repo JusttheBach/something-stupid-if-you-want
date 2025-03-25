@@ -28,6 +28,24 @@ typedef int tid_t;
 #define PRI_DEFAULT 31                  /* Default priority. */
 #define PRI_MAX 63                      /* Highest priority. */
 
+#define F (1 << 14) /* fixed point 1 */
+#define INT_MAX ((1 << 31) - 1)
+#define INT_MIN (-(1 << 31))
+// x and y denote fixed_point numbers in 17.14 format
+// n is an integer
+
+int int_to_fp(int n);         
+int fp_to_int_round(int x);   
+int fp_to_int(int x);         
+int add_fp(int x, int y);     
+int add_mixed(int x, int n);  
+int sub_fp(int x, int y);     
+int sub_mixed(int x, int n);  
+int mult_fp(int x, int y);    
+int mult_mixed(int x, int y); 
+int div_fp(int x, int y);     
+int div_mixed(int x, int n);  
+
 /* A kernel thread or user process.
  *
  * Each thread structure is stored in its own 4 kB page.  The
@@ -93,6 +111,16 @@ struct thread {
 	int priority;                       /* Priority. */
 	long long int wakeup_tick;					/*local tick*/
 
+	int initial_priority;          /* Base priority. */
+    struct lock *waiting_lock;     /* Lock this thread is waiting for. */
+    struct list donator_list;      /* List of threads that donated priority. */
+    struct list_elem donator_elem; /* List element for donation list. */
+
+	/*mlfqs*/
+	struct list_elem multi_elem;		/*element to keep track of all threads*/
+	int nice; 						/*niceness*/
+	int recent_cpu;					/*recent_cpu value for mlfqs*/
+
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
 
@@ -144,5 +172,7 @@ int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
 void do_iret (struct intr_frame *tf);
+
+bool test_priority(void);
 
 #endif /* threads/thread.h */

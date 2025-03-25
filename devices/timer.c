@@ -128,6 +128,17 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 	ticks++;
 	thread_tick ();
 
+	if (thread_mlfqs) {
+        mlfqs_increment();
+        if (timer_ticks() % 4 == 0)
+            calc_priority();
+
+        if (timer_ticks() % 100 == 0) {
+            calc_load_avg();
+            calc_recent_cpu();
+        }
+    }
+
 	while (!list_empty(&sleep_list)) {
 		struct thread *t = list_entry(list_front(&sleep_list), struct thread, elem);
 		if (t->wakeup_tick <= ticks) {
