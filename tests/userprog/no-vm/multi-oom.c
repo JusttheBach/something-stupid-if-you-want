@@ -128,11 +128,9 @@ make_children (void) {
       break;
     }
   }
-
   int depth = wait (pid);
   if (depth < 0)
 	  fail ("Should return > 0.");
-
   if (i == 0)
 	  return depth;
   else

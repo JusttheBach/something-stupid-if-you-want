@@ -23,6 +23,5 @@ main (int argc, char *argv[])
     else
       msg ("argv[%d] = null", i);
   msg ("end");
-
   return 0;
 }

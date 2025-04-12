@@ -250,7 +250,6 @@ thread_init (void) {
 	list_init (&destruction_req);
 	list_init (&multi_list);
 
-
 	/* Set up a thread structure for the running thread. */
 	initial_thread = running_thread ();
 	init_thread (initial_thread, "main", PRI_DEFAULT);
@@ -372,6 +371,18 @@ thread_create (const char *name, int priority,
 	t->tf.ss = SEL_KDSEG;
 	t->tf.cs = SEL_KCSEG;
 	t->tf.eflags = FLAG_IF;
+	
+	/*initialize fdt filled with zeros*/
+	t->fdt = palloc_get_page(PAL_ZERO);
+	if (t->fdt == NULL)  return TID_ERROR;
+	/*reserve fd for stdin and stdout*/
+	t->fdt[0] = 1;
+	t->fdt[1] = 2;
+	/*no stderr here*/
+	t->next_fd = 2;
+
+	/*add t to its parent's children list*/
+	list_push_back(&thread_current()->children_list, &t->children_elem);
 
 	list_push_back(&multi_list, &t->multi_elem);
 	/* Add to run queue. */
@@ -635,7 +646,16 @@ init_thread (struct thread *t, const char *name, int priority) {
     t->initial_priority = priority;   /* Save the base priority. */
     t->magic = THREAD_MAGIC;
     t->waiting_lock = NULL;             /* Not waiting for any lock initially. */
-    list_init(&t->donator_list); }
+
+	// list containing priority donators
+    list_init(&t->donator_list);
+	list_init(&t->children_list);
+
+	// semas for fork, wait
+	sema_init(&t->sema_wait, 0);
+	sema_init(&t->sema_wait2, 0);
+	sema_init(&t->sema_child_setup, 0);
+}
 
 /* Chooses and returns the next thread to be scheduled.  Should
    return a thread from the run queue, unless the run queue is

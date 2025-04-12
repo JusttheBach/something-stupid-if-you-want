@@ -21,6 +21,7 @@
 #ifdef VM
 #include "vm/vm.h"
 #endif
+#define MAX_ARGUMENT_LENGTH 128
 
 static void process_cleanup (void);
 static bool load (const char *file_name, struct intr_frame *if_);
@@ -43,12 +44,14 @@ process_create_initd (const char *file_name) {
 	char *fn_copy;
 	tid_t tid;
 
-	/* Make a copy of FILE_NAME.
-	 * Otherwise there's a race between the caller and load(). */
 	fn_copy = palloc_get_page (0);
 	if (fn_copy == NULL)
 		return TID_ERROR;
 	strlcpy (fn_copy, file_name, PGSIZE);
+
+	/*EDITED: get program name*/
+	char* temp;
+	strtok_r(file_name, " ", &temp);
 
 	/* Create a new thread to execute FILE_NAME. */
 	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy);
@@ -76,8 +79,14 @@ initd (void *f_name) {
 tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	/* Clone current thread to new thread.*/
-	return thread_create (name,
-			PRI_DEFAULT, __do_fork, thread_current ());
+	// return thread_create (name,
+	// 		PRI_DEFAULT, __do_fork, thread_current ());
+	struct thread *cur = thread_current();
+	tid_t ctid = thread_create (name, PRI_DEFAULT, __do_fork, cur);
+	if (ctid == TID_ERROR)
+		return TID_ERROR;
+	sema_down(&cur->sema_child_setup);
+	return ctid;
 }
 
 #ifndef VM
@@ -90,23 +99,31 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 	void *parent_page;
 	void *newpage;
 	bool writable;
+	/*if fail return true*/
 
 	/* 1. TODO: If the parent_page is kernel page, then return immediately. */
+	if(is_kernel_vaddr(va)) return true;
 
 	/* 2. Resolve VA from the parent's page map level 4. */
 	parent_page = pml4_get_page (parent->pml4, va);
+	if(parent_page == NULL) return false;
 
 	/* 3. TODO: Allocate new PAL_USER page for the child and set result to
 	 *    TODO: NEWPAGE. */
+	newpage = palloc_get_page(PAL_USER);
+	if(newpage == NULL) return false;
 
 	/* 4. TODO: Duplicate parent's page to the new page and
 	 *    TODO: check whether parent's page is writable or not (set WRITABLE
 	 *    TODO: according to the result). */
+	writable = is_writable(pte);
+	memcpy(newpage, parent_page, PGSIZE);
 
 	/* 5. Add new page to child's page table at address VA with WRITABLE
 	 *    permission. */
 	if (!pml4_set_page (current->pml4, va, newpage, writable)) {
 		/* 6. TODO: if fail to insert page, do error handling. */
+		return false;
 	}
 	return true;
 }
@@ -122,7 +139,7 @@ __do_fork (void *aux) {
 	struct thread *parent = (struct thread *) aux;
 	struct thread *current = thread_current ();
 	/* TODO: somehow pass the parent_if. (i.e. process_fork()'s if_) */
-	struct intr_frame *parent_if;
+	struct intr_frame *parent_if = &parent->copy_if;
 	bool succ = true;
 
 	/* 1. Read the cpu context to local stack. */
@@ -142,20 +159,27 @@ __do_fork (void *aux) {
 	if (!pml4_for_each (parent->pml4, duplicate_pte, parent))
 		goto error;
 #endif
-
 	/* TODO: Your code goes here.
 	 * TODO: Hint) To duplicate the file object, use `file_duplicate`
 	 * TODO:       in include/filesys/file.h. Note that parent should not return
 	 * TODO:       from the fork() until this function successfully duplicates
 	 * TODO:       the resources of parent.*/
-
+	struct file** fdt = current->fdt;
+	struct file** parent_fdt = parent->fdt;
+	for (int i=2;i<128;i++){ //limit to 128 fds (ref. piazza)
+		if(parent_fdt[i]){
+			fdt[i]=file_duplicate(parent_fdt[i]);
+		}
+	}
 	process_init ();
 
+	sema_up(&parent->sema_child_setup);
 	/* Finally, switch to the newly created process. */
-	if (succ)
+	if_.R.rax = 0; 
 		do_iret (&if_);
 error:
-	thread_exit ();
+	sema_up(&parent->sema_child_setup);
+	exit(TID_ERROR);
 }
 
 /* Switch the current execution context to the f_name.
@@ -204,7 +228,33 @@ process_wait (tid_t child_tid UNUSED) {
 	/* XXX: Hint) The pintos exit if process_wait (initd), we recommend you
 	 * XXX:       to add infinite loop here before
 	 * XXX:       implementing the process_wait. */
-	return -1;
+
+	//get the child process
+	struct thread *curr = thread_current();
+	struct list* children_list = &curr->children_list;
+	struct list_elem* list_tail = list_end(children_list);
+	struct thread* child;
+	int notParent = 1;
+	for(struct list_elem* child_elem_tmp = list_begin(children_list); child_elem_tmp!=list_tail;child_elem_tmp=list_next(child_elem_tmp)){
+		child = list_entry(child_elem_tmp, struct thread, children_elem);
+		if(child->tid==child_tid){
+			notParent = 0;
+			break;
+		}
+	}
+	// returns -1 if not the parent
+	if(notParent) return -1;
+
+	// wait for child process
+	sema_down(&child->sema_wait);
+
+	//child done, now remove child from the list
+	int child_exit_status = child->exit_status;
+	list_remove(&child->children_elem);
+
+	// allow child to exit
+	sema_up(&child->sema_wait2);
+	return child_exit_status;
 }
 
 /* Exit the process. This function is called by thread_exit (). */
@@ -215,6 +265,27 @@ process_exit (void) {
 	 * TODO: Implement process termination message (see
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
+
+	//print termination message
+	printf("%s: exit(%d)\n", curr->name, curr->exit_status);
+
+	if (curr->exec_file)
+		file_close(curr->exec_file);
+	// signal to parent that child is done executing
+	sema_up(&curr->sema_wait);
+
+	//wait for parent cleanup
+	sema_down(&curr->sema_wait2);
+
+	/*clean up*/
+	//closes files in fdt and free fdt
+	struct file** fdt = curr->fdt;
+	for (int i=2;i<128;i++){
+		if(fdt[i]){
+			file_close(fdt[i]);
+		}
+	}
+	palloc_free_page(fdt);
 
 	process_cleanup ();
 }
@@ -335,12 +406,26 @@ load (const char *file_name, struct intr_frame *if_) {
 		goto done;
 	process_activate (thread_current ());
 
+	/*tokenize program name and arguments in argv*/
+	char* token, *save_ptr;
+	char *argv[MAX_ARGUMENT_LENGTH]; //128 bytes limit
+	uint64_t argc = 0;
+	// char cmdline_copy[PGSIZE];
+	// strlcpy(cmdline_copy, file_name, PGSIZE);
+	for (token = strtok_r(file_name, " ", &save_ptr); token != NULL; token = strtok_r(NULL, " ", &save_ptr)) {
+		argv[argc] = token;
+		argc++;
+	}
+
 	/* Open executable file. */
-	file = filesys_open (file_name);
+	file = filesys_open (argv[0]);
 	if (file == NULL) {
 		printf ("load: %s: open failed\n", file_name);
 		goto done;
 	}
+
+	// deny write after loading
+	// file_deny_write(file);
 
 	/* Read and verify executable header. */
 	if (file_read (file, &ehdr, sizeof ehdr) != sizeof ehdr
@@ -362,7 +447,7 @@ load (const char *file_name, struct intr_frame *if_) {
 		if (file_ofs < 0 || file_ofs > file_length (file))
 			goto done;
 		file_seek (file, file_ofs);
-
+		
 		if (file_read (file, &phdr, sizeof phdr) != sizeof phdr)
 			goto done;
 		file_ofs += sizeof phdr;
@@ -416,12 +501,69 @@ load (const char *file_name, struct intr_frame *if_) {
 
 	/* TODO: Your code goes here.
 	 * TODO: Implement argument passing (see project2/argument_passing.html). */
+	//push arguments and save addresses on the stack
+	// ---------- Argument stack setup ----------
+	//size_t bytes_count = 0;
+	//char *arg_addresses[MAX_ARGUMENT_LENGTH];
+	for(uint64_t i=1;i<=argc;i++){
+		size_t arg_size = strlen(argv[argc-i])+1;
+		if_->rsp-= arg_size;
+		memcpy(if_->rsp,argv[argc-i], arg_size);
+		argv[argc-i] = if_->rsp;
+		//arg_addresses[argc-i] = if_->rsp;
+		//bytes_count+=arg_size;
+	}
+	//check for word allignment, add padding if necessary
+	// while(bytes_count %8!=0){
+	// 	if_->rsp--;
+	// 	char* temp_rsp = if_->rsp;
+	// 	*temp_rsp = 0;
+	// 	bytes_count--;
+	// }
+	uintptr_t rsp_val = (uintptr_t)if_->rsp;
+	size_t padding = rsp_val % 8;
+	if (padding > 0) {
+		if_->rsp -= padding;
+		memset(if_->rsp, 0, padding);
+	}
+	//push zeroes, transition to argument addresses
+	// for(int i=0;i<8;i++){
+	// 	if_->rsp-=8;
+	// 	char* temp_rsp = if_->rsp;
+	// 	*temp_rsp = 0;
+	// }
+	if_->rsp -= 8;
+	memset(if_->rsp, 0, 8);
+	//push arguments addresses
+	for(uint64_t i=1;i<=argc;i++){
+		if_->rsp-=8;
+		//memcpy(if_->rsp, &arg_addresses[argc-i], sizeof(char *));
+		memcpy(if_->rsp, &argv[argc-i], sizeof(char *));
+		//memcpy(if_->rsp, &argv[argc-i], strlen(argv[argc-i])+1);
+	}
+	if_->R.rsi = if_->rsp; //initialize rsp
+	if_->R.rdi = argc; //initialize rdi
+
+	//push 0 as return address
+	// for(int i=0;i<8;i++){
+	// 	if_->rsp-=8;
+	// 	char* temp_rsp = if_->rsp;
+	// 	*temp_rsp = 0;
+	// }
+	if_->rsp -= 8;
+	memset(if_->rsp, 0, 8);
+
+	/*for debugging*/
+	// printf("%d %x\n", if_->R.rdi, if_->R.rsi);
+	// hex_dump(if_->rsp, if_->rsp, USER_STACK - (uint64_t)if_->rsp, true);
 
 	success = true;
+	t->exec_file = file; //saved to be closed at the end of execution
+	file_deny_write(file);
 
 done:
 	/* We arrive here whether the load is successful or not. */
-	file_close (file);
+	// file_close (file);
 	return success;
 }
 
