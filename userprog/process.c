@@ -266,8 +266,7 @@ process_exit (void) {
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
 
-	//print termination message
-	printf("%s: exit(%d)\n", curr->name, curr->exit_status);
+	// termination message not here to not fail to thread tests
 
 	if (curr->exec_file)
 		file_close(curr->exec_file);

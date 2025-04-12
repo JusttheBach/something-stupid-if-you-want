@@ -115,7 +115,13 @@ void halt(void) {
 }
 
 void exit(int status) {
-	thread_current()->exit_status = status;
+	/*print exit messages*/
+	//print them here to not fail thread tests
+	struct thread *curr = thread_current();
+	curr->exit_status = status;
+	printf("%s: exit(%d)\n", curr->name, status);
+
+	/*EXIT*/
 	thread_exit(); //destroy thread, inherently calls process_exit()
 }
 //copy for now
