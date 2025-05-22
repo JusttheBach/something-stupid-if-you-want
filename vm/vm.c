@@ -65,7 +65,7 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		 * TODO: and then create "uninit" page struct by calling uninit_new. You
 		 * TODO: should modify the field after calling the uninit_new. */
 		// 1: Create a page
-		struct page* Page = malloc(sizeof(struct page));
+		struct page* Page = (struct page *)malloc(sizeof(struct page));
 		if (Page == NULL) goto err;
 
 		// 2: allocate the page with proper initializer function
@@ -95,17 +95,17 @@ err:
 
 /* Find VA from spt and return page. On error, return NULL. */
 struct page *
-spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
+spt_find_page (struct supplemental_page_table *spt, void *va) {
 	struct page *page = NULL;
 	/* TODO: Fill this function. */
 	struct page temp; // for hash search
 	temp.va = pg_round_down(va);
+	
 	struct hash_elem *elem = hash_find(&(spt->hash_table), &(temp.page_hash_elem));
 	if(elem==NULL) return NULL; //return NULL on error
 
 	// return the page
 	return hash_entry(elem, struct page, page_hash_elem);
-
 }
 
 /* Insert PAGE into spt with validation. */
@@ -115,14 +115,14 @@ spt_insert_page (struct supplemental_page_table *spt UNUSED,
 	int succ = false;
 	/* TODO: Fill this function. */
 	if (hash_insert(&(spt->hash_table), &(page->page_hash_elem)) == NULL) succ = true;
-
+	if(!succ) exit(-1);
 	return succ;
 }
 
 void
 spt_remove_page (struct supplemental_page_table *spt, struct page *page) {
 	if (hash_delete(&(spt->hash_table), &(page->page_hash_elem)) == NULL) return;
-	
+
 	vm_dealloc_page (page);
 	return;
 }
@@ -160,7 +160,7 @@ vm_get_victim (void) {
 	}
 
 	if (victim == NULL) {
-		// struct list_elem *e = list_pop_front(&frame_table);
+		struct list_elem *e = list_pop_front(&frame_table);
 		victim = list_entry(e, struct frame, frelem);
 	}
 	lock_release(&frame_lock);
@@ -194,10 +194,10 @@ vm_get_frame (void) {
 
 	//create frame struct
 	frame = (struct frame *)malloc(sizeof(struct frame));
-	if(frame==NULL) exit(-1);
 	frame->kva = kva;
 	frame->page = NULL;
 
+	ASSERT(frame != NULL);
 	ASSERT(frame->page == NULL);
 	return frame;
 }
@@ -229,7 +229,7 @@ vm_handle_wp (struct page *page UNUSED) {
 bool
 vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
-	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
+	struct supplemental_page_table *spt = &thread_current ()->spt;
 	struct page *page = NULL;
 	/* TODO: Validate the fault */
 	/* TODO: Your code goes here */
@@ -295,6 +295,7 @@ vm_do_claim_page (struct page *page) {
 	list_push_back(&frame_table, &(frame->frelem));
 	lock_release(&frame_lock);
 
+	//check existing mapping
 	if (pml4_set_page(curr->pml4, page->va, frame->kva, page->isWritable) == false) return false;
 
 	return swap_in (page, frame->kva);

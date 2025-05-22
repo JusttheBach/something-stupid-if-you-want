@@ -1,6 +1,6 @@
 /* anon.c: Implementation of page for non-disk image (a.k.a. anonymous page). */
 
-#include "bitmap.h"
+#include "lib/kernel/bitmap.h"
 #include "vm/vm.h"
 #include "devices/disk.h"
 
@@ -52,10 +52,10 @@ anon_swap_in (struct page *page, void *kva) {
 	if (panon->swap == SIZE_MAX) return false;
 
 	lock_acquire(&bitlock);
-	bool valid = !bitmap_contains(swap_map, panon->swap, 8, false);
+	bool valid = bitmap_contains(swap_map, panon->swap, 8, false);
 	lock_release(&bitlock);
 
-	if(!valid) return false;
+	if(valid) return false;
 
 	int i = 0;
 	while (i < 8) {
@@ -77,15 +77,15 @@ anon_swap_out (struct page *page) {
 	struct anon_page *panon = &page->anon;
 
 	lock_acquire(&bitlock);
-	int pg_num = bitmap_scan(swap_map, 0, 1, false);
+	disk_sector_t secnum = (disk_sector_t)bitmap_scan_and_flip(swap_map, 0, 8, false);
 	lock_release(&bitlock);
-	if (pg_num == BITMAP_ERROR) return false;
+	if (secnum == BITMAP_ERROR) return false;
 
-	panon->swap = pg_num;
+	panon->swap = secnum;
 
 	int i = 0;
 	while (i < SEC_PPAGE) {
-    disk_write(swap_disk,pg_num + i,page->frame->kva + i * DISK_SECTOR_SIZE);
+    disk_write(swap_disk, secnum + i, page->frame->kva + i * DISK_SECTOR_SIZE);
     i++;
 	}
 	pml4_clear_page(panon->thread->pml4, page->va);
@@ -100,9 +100,9 @@ static void
 anon_destroy (struct page *page) {
 	struct anon_page *panon = &page->anon;
 	if (page->frame != NULL) {
-		lock_acquire(&frame_lock);
+		//lock_acquire(&frame_lock);
 		list_remove(&page->frame->frelem);
-		lock_release(&frame_lock);
+		//lock_release(&frame_lock);
 		free(page->frame);
 	}
 

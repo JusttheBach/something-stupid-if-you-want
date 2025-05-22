@@ -56,8 +56,6 @@ static bool
 file_backed_swap_out (struct page *page) {
 	struct file_page *file_page = &page->file;
 
-    if (page==NULL) return false;
-
     struct thread *curr = thread_current();
 
     if (pml4_is_dirty(curr->pml4, page->va)) {
@@ -78,9 +76,9 @@ file_backed_destroy (struct page *page) {
 	struct file_page *file_page UNUSED = &page->file;
     list_remove(&(file_page->file_page_elem));
     if (page->frame != NULL) {
-        lock_acquire(&frame_lock);
+        //lock_acquire(&frame_lock);
         list_remove(&(page->frame->frelem));
-        lock_release(&frame_lock);
+        //lock_release(&frame_lock);
         free(page->frame);
     }
 }
@@ -92,13 +90,13 @@ static bool lazy_load_file (struct page *page, void *aux){
     list_push_back(&(thread_current()->mmlist), &(page->file.file_page_elem)); //20-5 17:36
 
     lock_acquire(&filesys_lock);
-    off_t file_read = file_read_at(aux_lazy->file, page->va, (off_t)aux_lazy->read_bytes, aux_lazy->offset);
+    off_t file_read = file_read_at(aux_lazy->file, page->frame->kva, (off_t)aux_lazy->read_bytes, aux_lazy->offset);
     lock_release(&filesys_lock);
     if (file_read != (off_t)aux_lazy->read_bytes) {
         vm_dealloc_page(page);
         succ = false;
     } else {
-        memset((page->va) + aux_lazy->read_bytes, 0, aux_lazy->zero_bytes);
+        memset((page->frame->kva) + aux_lazy->read_bytes, 0, aux_lazy->zero_bytes);
         page->file.page = page;
         page->file.file = aux_lazy->file;
         page->file.offset = aux_lazy->offset;
@@ -119,13 +117,12 @@ do_mmap (void *addr, size_t length, int writable,
 	
     // get file
     struct file *mmap_file = file_reopen(file);
-    if(mmap_file == NULL || addr == NULL || length == 0) return NULL;
+    if(mmap_file == NULL) return NULL;
 
     size_t read_bytes = length;
     size_t zero_bytes = PGSIZE - (length % PGSIZE);
     off_t dynoffset = offset;
     void *upage = addr;
-
     //load_segment
     while (read_bytes > 0 || zero_bytes > 0) {
 		/* Do calculate how to fill this page.
@@ -145,11 +142,10 @@ do_mmap (void *addr, size_t length, int writable,
         aux->length = length;
 
 		if (!vm_alloc_page_with_initializer (VM_FILE, upage,
-					writable, lazy_load_file, aux)){
+					writable, lazy_load_file, (void *)aux)){
 				file_close(mmap_file);
 				return NULL;
 			}
-
 		/* Advance. */
 		read_bytes -= page_read_bytes;
 		zero_bytes -= page_zero_bytes;
@@ -158,7 +154,6 @@ do_mmap (void *addr, size_t length, int writable,
 	}
     return addr;
 }
-
 
 
 //initialize file_page struct
@@ -191,33 +186,41 @@ do_munmap (void *addr) {
     if(addr == NULL) return;
     if(page->operations->type != VM_FILE) return;
     if((addr != page->file.start) || is_kernel_vaddr(addr)) return;
+    ASSERT(thread_current()->spt.hash_table.bucket_cnt > 0);
 
     //******************************** */
     //starts unmapping
     //******************************** */
     struct file_page file_page = page->file;
     size_t bytes_left = file_page.length;
-
-    for(bytes_left = file_page.length; bytes_left>0; bytes_left-=PGSIZE){
-        page = spt_find_page(&curr->spt, addr);
-        if(page==NULL) continue;
-
+    int count=0;
+    size_t chunk;
+    for(bytes_left = file_page.length; bytes_left>0; bytes_left-=chunk){
+        struct page* Page = spt_find_page(&curr->spt, addr);
+        count++;
+        // if(Page==NULL){
+        //     printf("Terminate at iteration: %d\n", count);
+        //     exit(-1);
+        // }exit(-1);
+        //if(page==NULL) break;
+        //if(page==NULL) printf("NULL page\n");
         //if dirty, write back
         if (pml4_is_dirty(curr->pml4, addr)){
+            void *kaddr = pml4_get_page (curr->pml4, addr);
             lock_acquire(&filesys_lock);
-            file_write_at(file_page.file, addr, page->file.read_bytes, page->file.offset);
+            file_write_at(file_page.file, kaddr, Page->file.read_bytes, Page->file.offset);
             lock_release(&filesys_lock);
         }
 
         //remove page from spt and destroy it
-        hash_delete(&(curr->spt), &(page->page_hash_elem));
-        spt_remove_page(&curr->spt, page);
-        vm_dealloc_page(page);
+        //hash_delete(&(curr->spt), &(page->page_hash_elem));
+        spt_remove_page(&curr->spt, Page);
+        //vm_dealloc_page(page);
 
         //advance
+        chunk = bytes_left < PGSIZE ? bytes_left : PGSIZE;
         addr += PGSIZE;
     }
-
-    //cleanup
-    file_close(file_page.file);
+    //User handle file cleanup
+    //file_close(file_page.file);
 }
