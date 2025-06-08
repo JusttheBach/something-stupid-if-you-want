@@ -11,13 +11,4 @@ void process_exit (void);
 void process_activate (struct thread *next);
 
 void argument_stack(char **parse, int count, void **esp);
-
-struct exit_info {
-    tid_t parent_tid;
-    tid_t child_tid;
-
-    int exit_status;
-    struct list_elem exit_elem;
-    struct semaphore sema;
-};
 #endif /* userprog/process.h */

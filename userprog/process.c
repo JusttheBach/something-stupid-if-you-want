@@ -32,6 +32,8 @@ struct lock plock;
 uint64_t stdin_file;
 uint64_t stdout_file;
 
+static struct thread *get_child_process(tid_t pid);
+
 static void process_cleanup (void);
 static bool load (const char *file_name, struct intr_frame *if_);
 static void initd (void *f_name);
@@ -42,28 +44,6 @@ static void __do_fork (void *);
 static void
 process_init (void) {
 	struct thread *current = thread_current ();
-    struct exit_info *exit_info = (struct exit_info *)malloc(sizeof(struct exit_info));
-    if (exit_info == NULL)
-    {
-        current->exit_status = -1;
-        thread_exit();
-    }
-    lock_acquire(&exit_info_lock);
-    exit_info->child_tid = current->tid;
-    exit_info->parent_tid = current->parent->tid;
-    exit_info->exit_status = 0;
-    sema_init(&exit_info->sema, 0);
-    list_push_back(&current->parent->exit_infos, &exit_info->exit_elem);
-    lock_release(&exit_info_lock);
-
-    current->fdt = (struct file **)realloc(current->fdt, sizeof(struct file *) * 2);
-    if (current->fdt == NULL)
-    {
-        current->exit_status = -1;
-        thread_exit();
-    }
-    current->fdt[0] = (struct file *)&stdin_file;
-    current->fdt[1] = (struct file *)&stdout_file;
 }
 
 /* Starts the first userland program, called "initd", loaded from FILE_NAME.
@@ -87,6 +67,7 @@ process_create_initd (const char *file_name) {
 
 	/* Create a new thread to execute FILE_NAME. */
 	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy);
+	// struct thread *child = get_child_process(tid);
 	if (tid == TID_ERROR)
 		palloc_free_page (fn_copy);
 	return tid;
@@ -176,6 +157,7 @@ __do_fork (void *aux) {
 
 	/* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof (struct intr_frame));
+	//free(aux);
 
 	/* 2. Duplicate PT */
 	current->pml4 = pml4_create();
@@ -196,6 +178,7 @@ __do_fork (void *aux) {
 	 * TODO:       in include/filesys/file.h. Note that parent should not return
 	 * TODO:       from the fork() until this function successfully duplicates
 	 * TODO:       the resources of parent.*/
+	process_init ();
 	struct file** fdt = current->fdt;
 	struct file** parent_fdt = parent->fdt;
 	for (int i=2;i<128;i++){ //limit to 128 fds (ref. piazza)
@@ -203,13 +186,15 @@ __do_fork (void *aux) {
 			fdt[i]=file_duplicate(parent_fdt[i]);
 		}
 	}
-	process_init ();
+
+	// parent->child_fork_success = true;
 
 	sema_up(&parent->sema_child_setup);
 	/* Finally, switch to the newly created process. */
 	if_.R.rax = 0; 
 		do_iret (&if_);
 error:
+	// parent->child_fork_success = false;
 	sema_up(&parent->sema_child_setup);
 	exit(TID_ERROR);
 }
@@ -231,6 +216,9 @@ process_exec (void *f_name) {
 
 	/* We first kill the current context */
 	process_cleanup ();
+
+	//initialize hash function to avoid page fault loop
+	supplemental_page_table_init(&thread_current()->spt);
 
 	/* And then load the binary */
 	success = load (file_name, &_if);
@@ -317,7 +305,6 @@ process_exit (void) {
 		}
 	}
 	palloc_free_page(fdt);
-
 	process_cleanup ();
 }
 
@@ -652,6 +639,24 @@ validate_segment (const struct Phdr *phdr, struct file *file) {
 	return true;
 }
 
+struct thread *get_child_process(tid_t pid)
+{
+    struct thread *curr = thread_current();
+    lock_acquire(&plock);
+    for (struct list_elem *tmp = list_begin(&curr->children_list); tmp != list_end(&curr->children_list); tmp = list_next(tmp))
+    {
+        struct thread *child = list_entry(tmp, struct thread, children_elem);
+        if (child->tid == pid)
+        {
+            lock_release(&plock);
+            return child;
+        }
+    }
+    lock_release(&plock);
+    return NULL;
+}
+
+
 #ifndef VM
 /* Codes of this block will be ONLY USED DURING project 2.
  * If you want to implement the function for whole project 2, implement it
@@ -762,15 +767,15 @@ lazy_load_segment (struct page *page, void *aux) {
 	/* TODO: This called when the first page fault occurs on address VA. */
 	/* TODO: VA is available when calling this function. */
 	bool success = true;
-	struct seg_aux* aux_info = (struct seg_aux*) aux;
-	off_t read_bytes = aux_info->read_bytes;
-    if (file_read_at(aux_info->file, page->va, aux_info->read_bytes, aux_info->offset) != read_bytes){
+	struct seg_aux* aux_info = (struct seg_aux *)aux;
+
+    if (file_read_at(aux_info->file, page->frame->kva, aux_info->read_bytes, aux_info->offset) != (off_t)aux_info->read_bytes){
         vm_dealloc_page(page);
 		// file_close(aux_info->file);
     	// free(aux);
 		success = false;
     } else {
-    memset((page->va) + aux_info->read_bytes, 0, aux_info->zero_bytes);
+    memset((page->frame->kva) + aux_info->read_bytes, 0, aux_info->zero_bytes);
 	}
 
     file_close(aux_info->file);
@@ -828,7 +833,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		read_bytes -= page_read_bytes;
 		zero_bytes -= page_zero_bytes;
 		upage += PGSIZE;
-		ofs += PGSIZE;
+		dynoffset += PGSIZE;
 	}
 	return true;
 }

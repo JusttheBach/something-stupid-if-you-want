@@ -2,7 +2,7 @@
 #define VM_VM_H
 #include <stdbool.h>
 #include "threads/palloc.h"
-#include <hash.h>
+#include "lib/kernel/hash.h"
 
 struct list frame_table;
 struct lock frame_lock;
@@ -52,7 +52,7 @@ struct page {
 
 	/* Your implementation */
 	// struct vm_entry vm_entry;
-	size_t pread_bytes;
+	size_t page_read_bytes;
 	struct hash_elem page_hash_elem;	//for hash table
 	bool copiable;
 	bool isWritable;

@@ -23,14 +23,7 @@ filesys_init (bool format) {
 
 	inode_init ();
 
-#ifdef EFILESYS
-	fat_init ();
 
-	if (format)
-		do_format ();
-
-	fat_open ();
-#else
 	/* Original FS */
 	free_map_init ();
 
@@ -38,7 +31,6 @@ filesys_init (bool format) {
 		do_format ();
 
 	free_map_open ();
-#endif
 }
 
 /* Shuts down the file system module, writing any unwritten data
@@ -46,11 +38,8 @@ filesys_init (bool format) {
 void
 filesys_done (void) {
 	/* Original FS */
-#ifdef EFILESYS
-	fat_close ();
-#else
 	free_map_close ();
-#endif
+
 }
 
 /* Creates a file named NAME with the given INITIAL_SIZE.
@@ -107,16 +96,10 @@ static void
 do_format (void) {
 	printf ("Formatting file system...");
 
-#ifdef EFILESYS
-	/* Create FAT and save it to the disk. */
-	fat_create ();
-	fat_close ();
-#else
 	free_map_create ();
 	if (!dir_create (ROOT_DIR_SECTOR, 16))
 		PANIC ("root directory creation failed");
 	free_map_close ();
-#endif
 
 	printf ("done.\n");
 }

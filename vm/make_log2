@@ -233,7 +233,20 @@ gcc -c ../../tests/userprog/read-boundary.c -o tests/userprog/read-boundary.o -g
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/userprog/read-boundary.o tests/userprog/boundary.o tests/main.o tests/lib.o lib/user/entry.o libc.a -o tests/userprog/read-boundary
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/userprog/read-boundary:read-boundary -p ../../tests/userprog/sample.txt:sample.txt --swap-disk=4 -- -q   -f run read-boundary < /dev/null 2> tests/userprog/read-boundary.errors > tests/userprog/read-boundary.output
 perl -I../.. ../../tests/userprog/read-boundary.ck tests/userprog/read-boundary tests/userprog/read-boundary.result
-pass tests/userprog/read-boundary
+FAIL tests/userprog/read-boundary
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (read-boundary) begin
+  (read-boundary) open "sample.txt"
+  (read-boundary) end
+  read-boundary: exit(0)
+Differences in `diff -u' format:
+  (read-boundary) begin
+  (read-boundary) open "sample.txt"
+- (read-boundary) end
+- read-boundary: exit(0)
++ read-boundary: exit(-1)
 gcc -c ../../tests/userprog/read-zero.c -o tests/userprog/read-zero.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/userprog/read-zero.d
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/userprog/read-zero.o tests/main.o tests/lib.o lib/user/entry.o libc.a -o tests/userprog/read-zero
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/userprog/read-zero:read-zero -p ../../tests/userprog/sample.txt:sample.txt --swap-disk=4 -- -q   -f run read-zero < /dev/null 2> tests/userprog/read-zero.errors > tests/userprog/read-zero.output
@@ -298,12 +311,56 @@ gcc -c ../../tests/userprog/fork-read.c -o tests/userprog/fork-read.o -g -msoft-
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/userprog/fork-read.o tests/userprog/boundary.o tests/main.o tests/lib.o lib/user/entry.o libc.a -o tests/userprog/fork-read
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/userprog/fork-read:fork-read -p ../../tests/userprog/sample.txt:sample.txt --swap-disk=4 -- -q   -f run fork-read < /dev/null 2> tests/userprog/fork-read.errors > tests/userprog/fork-read.output
 perl -I../.. ../../tests/userprog/fork-read.ck tests/userprog/fork-read tests/userprog/fork-read.result
-pass tests/userprog/fork-read
+FAIL tests/userprog/fork-read
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (fork-read) begin
+  (fork-read) open "sample.txt"
+  (fork-read) child run
+  (fork-read) Child: pintos is funny!
+  (fork-read) end
+  child: exit(0)
+  (fork-read) Parent success
+  (fork-read) end
+  fork-read: exit(0)
+Differences in `diff -u' format:
+  (fork-read) begin
+  (fork-read) open "sample.txt"
+- (fork-read) child run
+- (fork-read) Child: pintos is funny!
+- (fork-read) end
+- child: exit(0)
+- (fork-read) Parent success
+- (fork-read) end
+- fork-read: exit(0)
++ fork-read: exit(-1)
 gcc -c ../../tests/userprog/fork-close.c -o tests/userprog/fork-close.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/userprog/fork-close.d
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/userprog/fork-close.o tests/userprog/boundary.o tests/main.o tests/lib.o lib/user/entry.o libc.a -o tests/userprog/fork-close
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/userprog/fork-close:fork-close -p ../../tests/userprog/sample.txt:sample.txt --swap-disk=4 -- -q   -f run fork-close < /dev/null 2> tests/userprog/fork-close.errors > tests/userprog/fork-close.output
 perl -I../.. ../../tests/userprog/fork-close.ck tests/userprog/fork-close tests/userprog/fork-close.result
-pass tests/userprog/fork-close
+FAIL tests/userprog/fork-close
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (fork-close) begin
+  (fork-close) open "sample.txt"
+  (fork-close) child run
+  (fork-close) end
+  child: exit(0)
+  (fork-close) Parent success
+  (fork-close) end
+  fork-close: exit(0)
+Differences in `diff -u' format:
+  (fork-close) begin
+  (fork-close) open "sample.txt"
+  (fork-close) child run
+  (fork-close) end
+  child: exit(0)
+- (fork-close) Parent success
+- (fork-close) end
+- fork-close: exit(0)
++ fork-close: exit(-1)
 gcc -c ../../tests/userprog/fork-boundary.c -o tests/userprog/fork-boundary.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/userprog/fork-boundary.d
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/userprog/fork-boundary.o tests/userprog/boundary.o tests/main.o tests/lib.o lib/user/entry.o libc.a -o tests/userprog/fork-boundary
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/userprog/fork-boundary:fork-boundary --swap-disk=4 -- -q   -f run fork-boundary < /dev/null 2> tests/userprog/fork-boundary.errors > tests/userprog/fork-boundary.output
@@ -343,7 +400,38 @@ gcc -c ../../tests/userprog/child-read.c -o tests/userprog/child-read.o -g -msof
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/userprog/child-read.o tests/userprog/boundary.o tests/lib.o lib/user/entry.o libc.a -o tests/userprog/child-read
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/userprog/exec-read:exec-read -p ../../tests/userprog/sample.txt:sample.txt -p tests/userprog/child-read:child-read --swap-disk=4 -- -q   -f run exec-read < /dev/null 2> tests/userprog/exec-read.errors > tests/userprog/exec-read.output
 perl -I../.. ../../tests/userprog/exec-read.ck tests/userprog/exec-read tests/userprog/exec-read.result
-pass tests/userprog/exec-read
+FAIL tests/userprog/exec-read
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (exec-read) begin
+  (exec-read) open "sample.txt"
+  (exec-read) read "sample.txt" first 20 bytes
+  (child-read) begin
+  (child-read) open "sample.txt"
+  (child-read) read "sample.txt" first 20 bytes
+  (child-read) read "sample.txt" remainders
+  (child-read) Child success
+  (child-read) end
+  child-read: exit(0)
+  (exec-read) Parent success
+  (exec-read) end
+  exec-read: exit(0)
+Differences in `diff -u' format:
+  (exec-read) begin
+  (exec-read) open "sample.txt"
+  (exec-read) read "sample.txt" first 20 bytes
+- (child-read) begin
+- (child-read) open "sample.txt"
+- (child-read) read "sample.txt" first 20 bytes
+- (child-read) read "sample.txt" remainders
+- (child-read) Child success
+- (child-read) end
+- child-read: exit(0)
+- (exec-read) Parent success
+- (exec-read) end
+- exec-read: exit(0)
++ exec-read: exit(-1)
 gcc -c ../../tests/userprog/wait-simple.c -o tests/userprog/wait-simple.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/userprog/wait-simple.d
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/userprog/wait-simple.o tests/main.o tests/lib.o lib/user/entry.o libc.a -o tests/userprog/wait-simple
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/userprog/wait-simple:wait-simple -p tests/userprog/child-simple:child-simple --swap-disk=4 -- -q   -f run wait-simple < /dev/null 2> tests/userprog/wait-simple.errors > tests/userprog/wait-simple.output
@@ -447,9 +535,11 @@ gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fn
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/pt-bad-addr:pt-bad-addr --swap-disk=4 -- -q   -f run pt-bad-addr < /dev/null 2> tests/vm/pt-bad-addr.errors > tests/vm/pt-bad-addr.output
 perl -I../.. ../../tests/vm/pt-bad-addr.ck tests/vm/pt-bad-addr tests/vm/pt-bad-addr.result
 pass tests/vm/pt-bad-addr
+gcc -c ../../tests/vm/pt-bad-read.c -o tests/vm/pt-bad-read.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/pt-bad-read.d
+gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/pt-bad-read.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/pt-bad-read
+pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/pt-bad-read:pt-bad-read -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run pt-bad-read < /dev/null 2> tests/vm/pt-bad-read.errors > tests/vm/pt-bad-read.output
 perl -I../.. ../../tests/vm/pt-bad-read.ck tests/vm/pt-bad-read tests/vm/pt-bad-read.result
-FAIL tests/vm/pt-bad-read
-Run produced no output at all
+pass tests/vm/pt-bad-read
 gcc -c ../../tests/vm/pt-write-code.c -o tests/vm/pt-write-code.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/pt-write-code.d
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/pt-write-code.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/pt-write-code
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/pt-write-code:pt-write-code --swap-disk=4 -- -q   -f run pt-write-code < /dev/null 2> tests/vm/pt-write-code.errors > tests/vm/pt-write-code.output
@@ -483,13 +573,15 @@ gcc -c ../../tests/vm/child-sort.c -o tests/vm/child-sort.o -g -msoft-float -O0 
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/child-sort.o tests/lib.o lib/user/entry.o libc.a -o tests/vm/child-sort
 pintos -v -k -T 600 -m 20   --fs-disk=10 -p tests/vm/page-merge-seq:page-merge-seq -p tests/vm/child-sort:child-sort --swap-disk=4 -- -q   -f run page-merge-seq < /dev/null 2> tests/vm/page-merge-seq.errors > tests/vm/page-merge-seq.output
 perl -I../.. ../../tests/vm/page-merge-seq.ck tests/vm/page-merge-seq tests/vm/page-merge-seq.result
-pass tests/vm/page-merge-seq
+FAIL tests/vm/page-merge-seq
+run: child[0] wait fail: FAILED
 gcc -c ../../tests/vm/page-merge-par.c -o tests/vm/page-merge-par.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/page-merge-par.d
 gcc -c ../../tests/vm/parallel-merge.c -o tests/vm/parallel-merge.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/parallel-merge.d
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/page-merge-par.o tests/vm/parallel-merge.o tests/arc4.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/page-merge-par
 pintos -v -k -T 600 -m 20   --fs-disk=10 -p tests/vm/page-merge-par:page-merge-par -p tests/vm/child-sort:child-sort --swap-disk=10 -- -q   -f run page-merge-par < /dev/null 2> tests/vm/page-merge-par.errors > tests/vm/page-merge-par.output
 perl -I../.. ../../tests/vm/page-merge-par.ck tests/vm/page-merge-par tests/vm/page-merge-par.result
-pass tests/vm/page-merge-par
+FAIL tests/vm/page-merge-par
+run: wait for child 0: FAILED
 gcc -c ../../tests/vm/page-merge-stk.c -o tests/vm/page-merge-stk.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/page-merge-stk.d
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/page-merge-stk.o tests/vm/parallel-merge.o tests/arc4.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/page-merge-stk
 gcc -c ../../tests/vm/child-qsort.c -o tests/vm/child-qsort.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/child-qsort.d
@@ -503,289 +595,5 @@ gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fn
 gcc -c ../../tests/vm/child-qsort-mm.c -o tests/vm/child-qsort-mm.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/child-qsort-mm.d
 gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/child-qsort-mm.o tests/vm/qsort.o tests/lib.o lib/user/entry.o libc.a -o tests/vm/child-qsort-mm
 pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/page-merge-mm:page-merge-mm -p tests/vm/child-qsort-mm:child-qsort-mm --swap-disk=10 -- -q   -f run page-merge-mm < /dev/null 2> tests/vm/page-merge-mm.errors > tests/vm/page-merge-mm.output
-perl -I../.. ../../tests/vm/page-merge-mm.ck tests/vm/page-merge-mm tests/vm/page-merge-mm.result
-FAIL tests/vm/page-merge-mm
-run: bad value 16 in byte 0: FAILED
-gcc -c ../../tests/vm/page-shuffle.c -o tests/vm/page-shuffle.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/page-shuffle.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/page-shuffle.o tests/arc4.o tests/cksum.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/page-shuffle
-pintos -v -k -T 600 -m 20   --fs-disk=10 -p tests/vm/page-shuffle:page-shuffle --swap-disk=4 -- -q   -f run page-shuffle < /dev/null 2> tests/vm/page-shuffle.errors > tests/vm/page-shuffle.output
-perl -I../.. ../../tests/vm/page-shuffle.ck tests/vm/page-shuffle tests/vm/page-shuffle.result
-pass tests/vm/page-shuffle
-gcc -c ../../tests/vm/mmap-read.c -o tests/vm/mmap-read.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-read.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-read.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-read
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-read:mmap-read -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-read < /dev/null 2> tests/vm/mmap-read.errors > tests/vm/mmap-read.output
-perl -I../.. ../../tests/vm/mmap-read.ck tests/vm/mmap-read tests/vm/mmap-read.result
-pass tests/vm/mmap-read
-gcc -c ../../tests/vm/mmap-close.c -o tests/vm/mmap-close.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-close.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-close.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-close
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-close:mmap-close -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-close < /dev/null 2> tests/vm/mmap-close.errors > tests/vm/mmap-close.output
-perl -I../.. ../../tests/vm/mmap-close.ck tests/vm/mmap-close tests/vm/mmap-close.result
-pass tests/vm/mmap-close
-gcc -c ../../tests/vm/mmap-unmap.c -o tests/vm/mmap-unmap.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-unmap.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-unmap.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-unmap
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-unmap:mmap-unmap -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-unmap < /dev/null 2> tests/vm/mmap-unmap.errors > tests/vm/mmap-unmap.output
-perl -I../.. ../../tests/vm/mmap-unmap.ck tests/vm/mmap-unmap tests/vm/mmap-unmap.result
-pass tests/vm/mmap-unmap
-gcc -c ../../tests/vm/mmap-overlap.c -o tests/vm/mmap-overlap.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-overlap.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-overlap.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-overlap
-dd if=/dev/zero of=tests/vm/zeros bs=1024 count=6
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-overlap:mmap-overlap -p tests/vm/zeros:zeros --swap-disk=4 -- -q   -f run mmap-overlap < /dev/null 2> tests/vm/mmap-overlap.errors > tests/vm/mmap-overlap.output
-perl -I../.. ../../tests/vm/mmap-overlap.ck tests/vm/mmap-overlap tests/vm/mmap-overlap.result
-pass tests/vm/mmap-overlap
-gcc -c ../../tests/vm/mmap-twice.c -o tests/vm/mmap-twice.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-twice.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-twice.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-twice
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-twice:mmap-twice -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-twice < /dev/null 2> tests/vm/mmap-twice.errors > tests/vm/mmap-twice.output
-perl -I../.. ../../tests/vm/mmap-twice.ck tests/vm/mmap-twice tests/vm/mmap-twice.result
-pass tests/vm/mmap-twice
-gcc -c ../../tests/vm/mmap-write.c -o tests/vm/mmap-write.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-write.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-write.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-write
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-write:mmap-write --swap-disk=4 -- -q   -f run mmap-write < /dev/null 2> tests/vm/mmap-write.errors > tests/vm/mmap-write.output
-perl -I../.. ../../tests/vm/mmap-write.ck tests/vm/mmap-write tests/vm/mmap-write.result
-pass tests/vm/mmap-write
-gcc -c ../../tests/vm/mmap-ro.c -o tests/vm/mmap-ro.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-ro.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-ro.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-ro
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-ro:mmap-ro -p ../../tests/vm/large.txt:large.txt --swap-disk=4 -- -q   -f run mmap-ro < /dev/null 2> tests/vm/mmap-ro.errors > tests/vm/mmap-ro.output
-perl -I../.. ../../tests/vm/mmap-ro.ck tests/vm/mmap-ro tests/vm/mmap-ro.result
-pass tests/vm/mmap-ro
-gcc -c ../../tests/vm/mmap-exit.c -o tests/vm/mmap-exit.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-exit.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-exit.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-exit
-gcc -c ../../tests/vm/child-mm-wrt.c -o tests/vm/child-mm-wrt.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/child-mm-wrt.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/child-mm-wrt.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/child-mm-wrt
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-exit:mmap-exit -p tests/vm/child-mm-wrt:child-mm-wrt --swap-disk=4 -- -q   -f run mmap-exit < /dev/null 2> tests/vm/mmap-exit.errors > tests/vm/mmap-exit.output
-perl -I../.. ../../tests/vm/mmap-exit.ck tests/vm/mmap-exit tests/vm/mmap-exit.result
-FAIL tests/vm/mmap-exit
-run: 512 bytes read starting at offset 0 in "sample.txt" differ from expected: FAILED
-gcc -c ../../tests/vm/mmap-shuffle.c -o tests/vm/mmap-shuffle.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-shuffle.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-shuffle.o tests/arc4.o tests/cksum.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-shuffle
-pintos -v -k -T 600 -m 20   --fs-disk=10 -p tests/vm/mmap-shuffle:mmap-shuffle --swap-disk=4 -- -q   -f run mmap-shuffle < /dev/null 2> tests/vm/mmap-shuffle.errors > tests/vm/mmap-shuffle.output
-perl -I../.. ../../tests/vm/mmap-shuffle.ck tests/vm/mmap-shuffle tests/vm/mmap-shuffle.result
-pass tests/vm/mmap-shuffle
-gcc -c ../../tests/vm/mmap-bad-fd.c -o tests/vm/mmap-bad-fd.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-bad-fd.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-bad-fd.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-bad-fd
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-bad-fd:mmap-bad-fd --swap-disk=4 -- -q   -f run mmap-bad-fd < /dev/null 2> tests/vm/mmap-bad-fd.errors > tests/vm/mmap-bad-fd.output
-perl -I../.. ../../tests/vm/mmap-bad-fd.ck tests/vm/mmap-bad-fd tests/vm/mmap-bad-fd.result
-pass tests/vm/mmap-bad-fd
-gcc -c ../../tests/vm/mmap-clean.c -o tests/vm/mmap-clean.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-clean.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-clean.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-clean
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-clean:mmap-clean -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-clean < /dev/null 2> tests/vm/mmap-clean.errors > tests/vm/mmap-clean.output
-perl -I../.. ../../tests/vm/mmap-clean.ck tests/vm/mmap-clean tests/vm/mmap-clean.result
-pass tests/vm/mmap-clean
-gcc -c ../../tests/vm/mmap-inherit.c -o tests/vm/mmap-inherit.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-inherit.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-inherit.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-inherit
-gcc -c ../../tests/vm/child-inherit.c -o tests/vm/child-inherit.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/child-inherit.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/child-inherit.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/child-inherit
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-inherit:mmap-inherit -p ../../tests/vm/sample.txt:sample.txt -p tests/vm/child-inherit:child-inherit --swap-disk=4 -- -q   -f run mmap-inherit < /dev/null 2> tests/vm/mmap-inherit.errors > tests/vm/mmap-inherit.output
-perl -I../.. ../../tests/vm/mmap-inherit.ck tests/vm/mmap-inherit tests/vm/mmap-inherit.result
-pass tests/vm/mmap-inherit
-gcc -c ../../tests/vm/mmap-misalign.c -o tests/vm/mmap-misalign.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-misalign.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-misalign.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-misalign
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-misalign:mmap-misalign -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-misalign < /dev/null 2> tests/vm/mmap-misalign.errors > tests/vm/mmap-misalign.output
-perl -I../.. ../../tests/vm/mmap-misalign.ck tests/vm/mmap-misalign tests/vm/mmap-misalign.result
-pass tests/vm/mmap-misalign
-gcc -c ../../tests/vm/mmap-null.c -o tests/vm/mmap-null.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-null.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-null.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-null
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-null:mmap-null -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-null < /dev/null 2> tests/vm/mmap-null.errors > tests/vm/mmap-null.output
-perl -I../.. ../../tests/vm/mmap-null.ck tests/vm/mmap-null tests/vm/mmap-null.result
-pass tests/vm/mmap-null
-gcc -c ../../tests/vm/mmap-over-code.c -o tests/vm/mmap-over-code.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-over-code.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-over-code.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-over-code
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-over-code:mmap-over-code -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-over-code < /dev/null 2> tests/vm/mmap-over-code.errors > tests/vm/mmap-over-code.output
-perl -I../.. ../../tests/vm/mmap-over-code.ck tests/vm/mmap-over-code tests/vm/mmap-over-code.result
-pass tests/vm/mmap-over-code
-gcc -c ../../tests/vm/mmap-over-data.c -o tests/vm/mmap-over-data.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-over-data.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-over-data.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-over-data
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-over-data:mmap-over-data -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-over-data < /dev/null 2> tests/vm/mmap-over-data.errors > tests/vm/mmap-over-data.output
-perl -I../.. ../../tests/vm/mmap-over-data.ck tests/vm/mmap-over-data tests/vm/mmap-over-data.result
-pass tests/vm/mmap-over-data
-gcc -c ../../tests/vm/mmap-over-stk.c -o tests/vm/mmap-over-stk.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-over-stk.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-over-stk.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-over-stk
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-over-stk:mmap-over-stk -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-over-stk < /dev/null 2> tests/vm/mmap-over-stk.errors > tests/vm/mmap-over-stk.output
-perl -I../.. ../../tests/vm/mmap-over-stk.ck tests/vm/mmap-over-stk tests/vm/mmap-over-stk.result
-pass tests/vm/mmap-over-stk
-gcc -c ../../tests/vm/mmap-remove.c -o tests/vm/mmap-remove.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-remove.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-remove.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-remove
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-remove:mmap-remove -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-remove < /dev/null 2> tests/vm/mmap-remove.errors > tests/vm/mmap-remove.output
-perl -I../.. ../../tests/vm/mmap-remove.ck tests/vm/mmap-remove tests/vm/mmap-remove.result
-pass tests/vm/mmap-remove
-gcc -c ../../tests/vm/mmap-zero.c -o tests/vm/mmap-zero.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-zero.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-zero.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-zero
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-zero:mmap-zero --swap-disk=4 -- -q   -f run mmap-zero < /dev/null 2> tests/vm/mmap-zero.errors > tests/vm/mmap-zero.output
-perl -I../.. ../../tests/vm/mmap-zero.ck tests/vm/mmap-zero tests/vm/mmap-zero.result
-pass tests/vm/mmap-zero
-gcc -c ../../tests/vm/mmap-bad-fd2.c -o tests/vm/mmap-bad-fd2.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-bad-fd2.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-bad-fd2.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-bad-fd2
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-bad-fd2:mmap-bad-fd2 --swap-disk=4 -- -q   -f run mmap-bad-fd2 < /dev/null 2> tests/vm/mmap-bad-fd2.errors > tests/vm/mmap-bad-fd2.output
-perl -I../.. ../../tests/vm/mmap-bad-fd2.ck tests/vm/mmap-bad-fd2 tests/vm/mmap-bad-fd2.result
-pass tests/vm/mmap-bad-fd2
-gcc -c ../../tests/vm/mmap-bad-fd3.c -o tests/vm/mmap-bad-fd3.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-bad-fd3.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-bad-fd3.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-bad-fd3
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-bad-fd3:mmap-bad-fd3 --swap-disk=4 -- -q   -f run mmap-bad-fd3 < /dev/null 2> tests/vm/mmap-bad-fd3.errors > tests/vm/mmap-bad-fd3.output
-perl -I../.. ../../tests/vm/mmap-bad-fd3.ck tests/vm/mmap-bad-fd3 tests/vm/mmap-bad-fd3.result
-pass tests/vm/mmap-bad-fd3
-gcc -c ../../tests/vm/mmap-zero-len.c -o tests/vm/mmap-zero-len.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-zero-len.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-zero-len.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-zero-len
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-zero-len:mmap-zero-len --swap-disk=4 -- -q   -f run mmap-zero-len < /dev/null 2> tests/vm/mmap-zero-len.errors > tests/vm/mmap-zero-len.output
-perl -I../.. ../../tests/vm/mmap-zero-len.ck tests/vm/mmap-zero-len tests/vm/mmap-zero-len.result
-FAIL tests/vm/mmap-zero-len
-run: try to mmap zero length: FAILED
-gcc -c ../../tests/vm/mmap-off.c -o tests/vm/mmap-off.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-off.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-off.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-off
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-off:mmap-off -p ../../tests/vm/large.txt:large.txt --swap-disk=4 -- -q   -f run mmap-off < /dev/null 2> tests/vm/mmap-off.errors > tests/vm/mmap-off.output
-perl -I../.. ../../tests/vm/mmap-off.ck tests/vm/mmap-off tests/vm/mmap-off.result
-pass tests/vm/mmap-off
-gcc -c ../../tests/vm/mmap-bad-off.c -o tests/vm/mmap-bad-off.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-bad-off.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-bad-off.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-bad-off
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-bad-off:mmap-bad-off -p ../../tests/vm/large.txt:large.txt --swap-disk=4 -- -q   -f run mmap-bad-off < /dev/null 2> tests/vm/mmap-bad-off.errors > tests/vm/mmap-bad-off.output
-perl -I../.. ../../tests/vm/mmap-bad-off.ck tests/vm/mmap-bad-off tests/vm/mmap-bad-off.result
-FAIL tests/vm/mmap-bad-off
-run: try to mmap invalid offset: FAILED
-gcc -c ../../tests/vm/mmap-kernel.c -o tests/vm/mmap-kernel.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/mmap-kernel.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/mmap-kernel.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/mmap-kernel
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/mmap-kernel:mmap-kernel -p ../../tests/vm/sample.txt:sample.txt --swap-disk=4 -- -q   -f run mmap-kernel < /dev/null 2> tests/vm/mmap-kernel.errors > tests/vm/mmap-kernel.output
-perl -I../.. ../../tests/vm/mmap-kernel.ck tests/vm/mmap-kernel tests/vm/mmap-kernel.result
-FAIL tests/vm/mmap-kernel
-run: try to mmap over kernel 2: FAILED
-gcc -c ../../tests/vm/lazy-file.c -o tests/vm/lazy-file.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/lazy-file.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/lazy-file.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/lazy-file
-pintos -v -k -T 600 -m 20   --fs-disk=10 -p tests/vm/lazy-file:lazy-file -p ../../tests/vm/sample.txt:sample.txt -p ../../tests/vm/small.txt:small.txt --swap-disk=4 -- -q   -f run lazy-file < /dev/null 2> tests/vm/lazy-file.errors > tests/vm/lazy-file.output
-perl -I../.. ../../tests/vm/lazy-file.ck tests/vm/lazy-file tests/vm/lazy-file.result
-pass tests/vm/lazy-file
-gcc -c ../../tests/vm/lazy-anon.c -o tests/vm/lazy-anon.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/lazy-anon.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/lazy-anon.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/lazy-anon
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/vm/lazy-anon:lazy-anon --swap-disk=4 -- -q   -f run lazy-anon < /dev/null 2> tests/vm/lazy-anon.errors > tests/vm/lazy-anon.output
-perl -I../.. ../../tests/vm/lazy-anon.ck tests/vm/lazy-anon tests/vm/lazy-anon.result
-pass tests/vm/lazy-anon
-gcc -c ../../tests/vm/swap-file.c -o tests/vm/swap-file.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/swap-file.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/swap-file.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/swap-file
-pintos -v -k -T 180 -m 8   --fs-disk=10 -p tests/vm/swap-file:swap-file -p ../../tests/vm/large.txt:large.txt --swap-disk=10 -- -q   -f run swap-file < /dev/null 2> tests/vm/swap-file.errors > tests/vm/swap-file.output
-perl -I../.. ../../tests/vm/swap-file.ck tests/vm/swap-file tests/vm/swap-file.result
-pass tests/vm/swap-file
-gcc -c ../../tests/vm/swap-anon.c -o tests/vm/swap-anon.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/swap-anon.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/swap-anon.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/swap-anon
-pintos -v -k -T 180 -m 10   --fs-disk=10 -p tests/vm/swap-anon:swap-anon --swap-disk=30 -- -q   -f run swap-anon < /dev/null 2> tests/vm/swap-anon.errors > tests/vm/swap-anon.output
-perl -I../.. ../../tests/vm/swap-anon.ck tests/vm/swap-anon tests/vm/swap-anon.result
-pass tests/vm/swap-anon
-gcc -c ../../tests/vm/swap-iter.c -o tests/vm/swap-iter.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/swap-iter.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/swap-iter.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/swap-iter
-pintos -v -k -T 180 -m 10   --fs-disk=10 -p tests/vm/swap-iter:swap-iter -p ../../tests/vm/large.txt:large.txt --swap-disk=50 -- -q   -f run swap-iter < /dev/null 2> tests/vm/swap-iter.errors > tests/vm/swap-iter.output
-perl -I../.. ../../tests/vm/swap-iter.ck tests/vm/swap-iter tests/vm/swap-iter.result
-pass tests/vm/swap-iter
-gcc -c ../../tests/vm/swap-fork.c -o tests/vm/swap-fork.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/swap-fork.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/swap-fork.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/swap-fork
-gcc -c ../../tests/vm/child-swap.c -o tests/vm/child-swap.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/vm/child-swap.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/vm/child-swap.o tests/lib.o tests/main.o lib/user/entry.o libc.a -o tests/vm/child-swap
-pintos -v -k -T 600 -m 40   --fs-disk=10 -p tests/vm/swap-fork:swap-fork -p tests/vm/child-swap:child-swap --swap-disk=200 -- -q   -f run swap-fork < /dev/null 2> tests/vm/swap-fork.errors > tests/vm/swap-fork.output
-perl -I../.. ../../tests/vm/swap-fork.ck tests/vm/swap-fork tests/vm/swap-fork.result
-pass tests/vm/swap-fork
-gcc -c ../../tests/filesys/base/lg-create.c -o tests/filesys/base/lg-create.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/lg-create.d
-gcc -c ../../tests/filesys/seq-test.c -o tests/filesys/seq-test.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/seq-test.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/lg-create.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/lg-create
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/lg-create:lg-create --swap-disk=4 -- -q   -f run lg-create < /dev/null 2> tests/filesys/base/lg-create.errors > tests/filesys/base/lg-create.output
-perl -I../.. ../../tests/filesys/base/lg-create.ck tests/filesys/base/lg-create tests/filesys/base/lg-create.result
-pass tests/filesys/base/lg-create
-gcc -c ../../tests/filesys/base/lg-full.c -o tests/filesys/base/lg-full.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/lg-full.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/lg-full.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/lg-full
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/lg-full:lg-full --swap-disk=4 -- -q   -f run lg-full < /dev/null 2> tests/filesys/base/lg-full.errors > tests/filesys/base/lg-full.output
-perl -I../.. ../../tests/filesys/base/lg-full.ck tests/filesys/base/lg-full tests/filesys/base/lg-full.result
-pass tests/filesys/base/lg-full
-gcc -c ../../tests/filesys/base/lg-random.c -o tests/filesys/base/lg-random.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/lg-random.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/lg-random.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/lg-random
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/lg-random:lg-random --swap-disk=4 -- -q   -f run lg-random < /dev/null 2> tests/filesys/base/lg-random.errors > tests/filesys/base/lg-random.output
-perl -I../.. ../../tests/filesys/base/lg-random.ck tests/filesys/base/lg-random tests/filesys/base/lg-random.result
-pass tests/filesys/base/lg-random
-gcc -c ../../tests/filesys/base/lg-seq-block.c -o tests/filesys/base/lg-seq-block.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/lg-seq-block.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/lg-seq-block.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/lg-seq-block
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/lg-seq-block:lg-seq-block --swap-disk=4 -- -q   -f run lg-seq-block < /dev/null 2> tests/filesys/base/lg-seq-block.errors > tests/filesys/base/lg-seq-block.output
-perl -I../.. ../../tests/filesys/base/lg-seq-block.ck tests/filesys/base/lg-seq-block tests/filesys/base/lg-seq-block.result
-pass tests/filesys/base/lg-seq-block
-gcc -c ../../tests/filesys/base/lg-seq-random.c -o tests/filesys/base/lg-seq-random.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/lg-seq-random.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/lg-seq-random.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/lg-seq-random
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/lg-seq-random:lg-seq-random --swap-disk=4 -- -q   -f run lg-seq-random < /dev/null 2> tests/filesys/base/lg-seq-random.errors > tests/filesys/base/lg-seq-random.output
-perl -I../.. ../../tests/filesys/base/lg-seq-random.ck tests/filesys/base/lg-seq-random tests/filesys/base/lg-seq-random.result
-pass tests/filesys/base/lg-seq-random
-gcc -c ../../tests/filesys/base/sm-create.c -o tests/filesys/base/sm-create.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/sm-create.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/sm-create.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/sm-create
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/sm-create:sm-create --swap-disk=4 -- -q   -f run sm-create < /dev/null 2> tests/filesys/base/sm-create.errors > tests/filesys/base/sm-create.output
-perl -I../.. ../../tests/filesys/base/sm-create.ck tests/filesys/base/sm-create tests/filesys/base/sm-create.result
-pass tests/filesys/base/sm-create
-gcc -c ../../tests/filesys/base/sm-full.c -o tests/filesys/base/sm-full.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/sm-full.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/sm-full.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/sm-full
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/sm-full:sm-full --swap-disk=4 -- -q   -f run sm-full < /dev/null 2> tests/filesys/base/sm-full.errors > tests/filesys/base/sm-full.output
-perl -I../.. ../../tests/filesys/base/sm-full.ck tests/filesys/base/sm-full tests/filesys/base/sm-full.result
-pass tests/filesys/base/sm-full
-gcc -c ../../tests/filesys/base/sm-random.c -o tests/filesys/base/sm-random.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/sm-random.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/sm-random.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/sm-random
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/sm-random:sm-random --swap-disk=4 -- -q   -f run sm-random < /dev/null 2> tests/filesys/base/sm-random.errors > tests/filesys/base/sm-random.output
-perl -I../.. ../../tests/filesys/base/sm-random.ck tests/filesys/base/sm-random tests/filesys/base/sm-random.result
-pass tests/filesys/base/sm-random
-gcc -c ../../tests/filesys/base/sm-seq-block.c -o tests/filesys/base/sm-seq-block.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/sm-seq-block.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/sm-seq-block.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/sm-seq-block
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/sm-seq-block:sm-seq-block --swap-disk=4 -- -q   -f run sm-seq-block < /dev/null 2> tests/filesys/base/sm-seq-block.errors > tests/filesys/base/sm-seq-block.output
-perl -I../.. ../../tests/filesys/base/sm-seq-block.ck tests/filesys/base/sm-seq-block tests/filesys/base/sm-seq-block.result
-pass tests/filesys/base/sm-seq-block
-gcc -c ../../tests/filesys/base/sm-seq-random.c -o tests/filesys/base/sm-seq-random.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/sm-seq-random.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/sm-seq-random.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/sm-seq-random
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/sm-seq-random:sm-seq-random --swap-disk=4 -- -q   -f run sm-seq-random < /dev/null 2> tests/filesys/base/sm-seq-random.errors > tests/filesys/base/sm-seq-random.output
-perl -I../.. ../../tests/filesys/base/sm-seq-random.ck tests/filesys/base/sm-seq-random tests/filesys/base/sm-seq-random.result
-pass tests/filesys/base/sm-seq-random
-gcc -c ../../tests/filesys/base/syn-read.c -o tests/filesys/base/syn-read.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/syn-read.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/syn-read.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/syn-read
-gcc -c ../../tests/filesys/base/child-syn-read.c -o tests/filesys/base/child-syn-read.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/child-syn-read.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/child-syn-read.o tests/lib.o tests/filesys/seq-test.o lib/user/entry.o libc.a -o tests/filesys/base/child-syn-read
-pintos -v -k -T 300 -m 20   --fs-disk=10 -p tests/filesys/base/syn-read:syn-read -p tests/filesys/base/child-syn-read:child-syn-read --swap-disk=4 -- -q   -f run syn-read < /dev/null 2> tests/filesys/base/syn-read.errors > tests/filesys/base/syn-read.output
-perl -I../.. ../../tests/filesys/base/syn-read.ck tests/filesys/base/syn-read tests/filesys/base/syn-read.result
-pass tests/filesys/base/syn-read
-gcc -c ../../tests/filesys/base/syn-remove.c -o tests/filesys/base/syn-remove.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/syn-remove.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/syn-remove.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/syn-remove
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/syn-remove:syn-remove --swap-disk=4 -- -q   -f run syn-remove < /dev/null 2> tests/filesys/base/syn-remove.errors > tests/filesys/base/syn-remove.output
-perl -I../.. ../../tests/filesys/base/syn-remove.ck tests/filesys/base/syn-remove tests/filesys/base/syn-remove.result
-pass tests/filesys/base/syn-remove
-gcc -c ../../tests/filesys/base/syn-write.c -o tests/filesys/base/syn-write.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/syn-write.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/syn-write.o tests/lib.o tests/filesys/seq-test.o tests/main.o lib/user/entry.o libc.a -o tests/filesys/base/syn-write
-gcc -c ../../tests/filesys/base/child-syn-wrt.c -o tests/filesys/base/child-syn-wrt.o -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdinc -I../.. -I../../include/lib -I../../include -I../../include/lib/kernel -I../../include/lib/user -I. -Wall -W -Wstrict-prototypes -Wmissing-prototypes -Wsystem-headers  -MMD -MF tests/filesys/base/child-syn-wrt.d
-gcc -g -msoft-float -O0 -fno-omit-frame-pointer -mno-red-zone -mcmodel=large -fno-plt -fno-pic -mno-sse -fno-stack-protector  -fno-stack-protector -Wno-builtin-declaration-mismatch -nostdlib -static -Wl,-T,../../lib/user/user.lds tests/filesys/base/child-syn-wrt.o tests/lib.o tests/filesys/seq-test.o lib/user/entry.o libc.a -o tests/filesys/base/child-syn-wrt
-pintos -v -k -T 60 -m 20   --fs-disk=10 -p tests/filesys/base/syn-write:syn-write -p tests/filesys/base/child-syn-wrt:child-syn-wrt --swap-disk=4 -- -q   -f run syn-write < /dev/null 2> tests/filesys/base/syn-write.errors > tests/filesys/base/syn-write.output
-perl -I../.. ../../tests/filesys/base/syn-write.ck tests/filesys/base/syn-write tests/filesys/base/syn-write.result
-pass tests/filesys/base/syn-write
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run alarm-single < /dev/null 2> tests/threads/alarm-single.errors > tests/threads/alarm-single.output
-perl -I../.. ../../tests/threads/alarm-single.ck tests/threads/alarm-single tests/threads/alarm-single.result
-pass tests/threads/alarm-single
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run alarm-multiple < /dev/null 2> tests/threads/alarm-multiple.errors > tests/threads/alarm-multiple.output
-perl -I../.. ../../tests/threads/alarm-multiple.ck tests/threads/alarm-multiple tests/threads/alarm-multiple.result
-pass tests/threads/alarm-multiple
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run alarm-simultaneous < /dev/null 2> tests/threads/alarm-simultaneous.errors > tests/threads/alarm-simultaneous.output
-perl -I../.. ../../tests/threads/alarm-simultaneous.ck tests/threads/alarm-simultaneous tests/threads/alarm-simultaneous.result
-pass tests/threads/alarm-simultaneous
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run alarm-priority < /dev/null 2> tests/threads/alarm-priority.errors > tests/threads/alarm-priority.output
-perl -I../.. ../../tests/threads/alarm-priority.ck tests/threads/alarm-priority tests/threads/alarm-priority.result
-pass tests/threads/alarm-priority
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run alarm-zero < /dev/null 2> tests/threads/alarm-zero.errors > tests/threads/alarm-zero.output
-perl -I../.. ../../tests/threads/alarm-zero.ck tests/threads/alarm-zero tests/threads/alarm-zero.result
-pass tests/threads/alarm-zero
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run alarm-negative < /dev/null 2> tests/threads/alarm-negative.errors > tests/threads/alarm-negative.output
-perl -I../.. ../../tests/threads/alarm-negative.ck tests/threads/alarm-negative tests/threads/alarm-negative.result
-pass tests/threads/alarm-negative
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run priority-change < /dev/null 2> tests/threads/priority-change.errors > tests/threads/priority-change.output
-perl -I../.. ../../tests/threads/priority-change.ck tests/threads/priority-change tests/threads/priority-change.result
-pass tests/threads/priority-change
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run priority-donate-one < /dev/null 2> tests/threads/priority-donate-one.errors > tests/threads/priority-donate-one.output
-perl -I../.. ../../tests/threads/priority-donate-one.ck tests/threads/priority-donate-one tests/threads/priority-donate-one.result
-pass tests/threads/priority-donate-one
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run priority-donate-multiple < /dev/null 2> tests/threads/priority-donate-multiple.errors > tests/threads/priority-donate-multiple.output
-perl -I../.. ../../tests/threads/priority-donate-multiple.ck tests/threads/priority-donate-multiple tests/threads/priority-donate-multiple.result
-pass tests/threads/priority-donate-multiple
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run priority-donate-multiple2 < /dev/null 2> tests/threads/priority-donate-multiple2.errors > tests/threads/priority-donate-multiple2.output
-perl -I../.. ../../tests/threads/priority-donate-multiple2.ck tests/threads/priority-donate-multiple2 tests/threads/priority-donate-multiple2.result
-pass tests/threads/priority-donate-multiple2
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run priority-donate-nest < /dev/null 2> tests/threads/priority-donate-nest.errors > tests/threads/priority-donate-nest.output
-perl -I../.. ../../tests/threads/priority-donate-nest.ck tests/threads/priority-donate-nest tests/threads/priority-donate-nest.result
-pass tests/threads/priority-donate-nest
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run priority-donate-sema < /dev/null 2> tests/threads/priority-donate-sema.errors > tests/threads/priority-donate-sema.output
-perl -I../.. ../../tests/threads/priority-donate-sema.ck tests/threads/priority-donate-sema tests/threads/priority-donate-sema.result
-pass tests/threads/priority-donate-sema
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run priority-donate-lower < /dev/null 2> tests/threads/priority-donate-lower.errors > tests/threads/priority-donate-lower.output
-perl -I../.. ../../tests/threads/priority-donate-lower.ck tests/threads/priority-donate-lower tests/threads/priority-donate-lower.result
-pass tests/threads/priority-donate-lower
-pintos -v -k -T 60 -m 20   --fs-disk=10  --swap-disk=4 -- -q  -threads-tests -f run priority-fifo < /dev/null 2> tests/threads/priority-fifo.errors > tests/threads/priority-fifo.output
-../../tests/Make.tests:75: recipe for target 'tests/threads/priority-fifo.output' failed
+../../tests/Make.tests:75: recipe for target 'tests/vm/page-merge-mm.output' failed
 ../Makefile.kernel:10: recipe for target 'check' failed

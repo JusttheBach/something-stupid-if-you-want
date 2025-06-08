@@ -134,7 +134,8 @@ struct file** fdt; /*file descriptor table*/
 int next_fd;
 struct file *exec_file;
 
-struct list exit_infos;
+bool child_fork_success;
+
 
 /*For exit*/
 enum thread_status exit_status;
@@ -144,6 +145,7 @@ struct thread *parent;
 //list of children processes
 struct list children_list;
 struct list_elem children_elem; 
+
 
 //sema for each functions (for child) initialized to 0
 struct semaphore sema_wait; // parent wait for child to execute
